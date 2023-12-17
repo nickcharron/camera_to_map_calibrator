@@ -76,6 +76,8 @@ Once you have all your required inputs in the correct format, run the binary usi
 
 First step will be to select matching features. The image below shows an example. For each image, you must select one map feature per camera feature, and they must be selected in the same order so that the optimizer knows the correspondences
 
+![Example Annotation](imgs/example_annotation.png)
+
 Next, the tool will optimize and output results. It will then show you the results. An example of the results is shown below, where the coloring is as follows:
 
 1. Red markers: map features projected into image using original calibration
@@ -83,3 +85,6 @@ Next, the tool will optimize and output results. It will then show you the resul
 3. Green: map features projected into image using optimized caibration
 
 In other words, you want green and blue to overlap
+
+
+![Example Annotation](imgs/example_results.png)
