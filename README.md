@@ -1,6 +1,6 @@
 # camera_to_map_calibrator
 
-**tl;dr**: A simple tool for calibration a prebuilt 3D map with associated trajectory, to an intrinsically calibrated camera that has taken images while traveling along that trajectory.
+**tl;dr**: A simple tool for calibration a camera to a lidar, or other 3D sensor, by aligning a prebuilt 3D map to an image. This requires a dense map, with associated trajectory, and an intrinsically calibrated camera that has taken images while traveling along that trajectory.
 
 ## Goal
 
