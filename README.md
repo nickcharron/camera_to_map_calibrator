@@ -72,6 +72,8 @@ cd ~/cam2mapcalib_catkin_ws/
 ./build/camera_to_map_calibrator/camera_to_map_calibrator_main -help
 ```
 
+Note on data formats: see the tutorial below for an [example of the data format](https://drive.google.com/drive/folders/16HAdIEgmTeuaqhxy-c5pXVOWtOvlr_at?usp=sharing). For the images formats, this may seem like an odd image format, however, the goal is to conform to the format output by the [beam_robotics](https://github.com/BEAMRobotics/beam_robotics) [image extractor](https://github.com/BEAMRobotics/beam_robotics/blob/master/inspection_tools/inspection/src/ExtractImages.cpp). You may simplify your formats to only include the necessary data as described in the ImageContainer.h file. You may also run our image extractor if that makes your life easier, there are some useful tools with that binary.
+
 Once you have all your required inputs in the correct format, run the binary using the same command as above.
 
 First step will be to select matching features. The image below shows an example. For each image, you must select one map feature per camera feature, and they must be selected in the same order so that the optimizer knows the correspondences
