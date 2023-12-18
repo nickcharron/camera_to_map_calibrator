@@ -9,7 +9,6 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   beam::calibration 
   beam::colorize
-  beam::containers
   beam::utils
   beam::mapping
   beam::optimization

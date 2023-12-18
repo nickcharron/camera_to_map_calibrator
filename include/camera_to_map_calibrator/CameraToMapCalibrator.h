@@ -1,13 +1,14 @@
 #pragma once
 
-#include <pcl/visualization/pcl_visualizer.h>
 #include <nlohmann/json.hpp>
+#include <pcl/visualization/pcl_visualizer.h>
 
 #include <beam_calibration/CameraModel.h>
 #include <beam_calibration/TfTree.h>
 #include <beam_colorize/Colorizer.h>
 #include <beam_utils/pointclouds.h>
-#include <beam_containers/ImageBridge.h>
+
+#include "ImageContainer.h"
 
 using PCLViewer = pcl::visualization::PCLVisualizer::Ptr;
 
@@ -17,6 +18,7 @@ public:
     std::string map;
     std::string poses;
     std::string images_list;
+    std::string images_filename;
     std::string extrinsics;
     std::string intrinsics;
     std::string output;
@@ -66,7 +68,7 @@ private:
 
   void OutputResults();
 
-  nlohmann::json GetTransformJson(const Eigen::Matrix4d& T) const ;
+  nlohmann::json GetTransformJson(const Eigen::Matrix4d& T) const;
 
   void ViewResults();
 
@@ -77,7 +79,7 @@ private:
   PointCloud::Ptr map_ = std::make_shared<PointCloud>();
   pcl::PointXYZ min_;
   pcl::PointXYZ max_;
-  std::vector<beam_containers::ImageBridge> images_;
+  std::vector<ImageContainer> images_;
   beam_calibration::TfTree poses_tree_;
   beam_calibration::TfTree extrinsics_;
   std::string world_frame_id_;

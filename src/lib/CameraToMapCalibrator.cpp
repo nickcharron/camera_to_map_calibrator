@@ -90,16 +90,19 @@ void CameraToMapCalibrator::LoadImages() {
     throw std::runtime_error{"invalid json file path"};
   }
   beam::ValidateJsonKeysOrThrow({"Images"}, J);
-  std::vector<std::string> image_filenames = J["Images"];
+  std::vector<std::string> subfolder_names = J["Images"];
 
   std::filesystem::path images_root =
       std::filesystem::path(inputs_.images_list).parent_path();
 
-  for (const auto& image_filename : image_filenames) {
-    std::filesystem::path image_path =
-        images_root / std::filesystem::path(image_filename);
-    images_.push_back(beam_containers::ImageBridge());
-    images_.back().LoadFromJSON(image_path);
+  for (const auto& subfolder_name : subfolder_names) {
+    std::filesystem::path image_root =
+        images_root / std::filesystem::path(subfolder_name);
+    std::string image_path =
+        image_root / std::filesystem::path(inputs_.images_filename);
+    std::string image_info_path =
+        image_root / std::filesystem::path("ImageInfo.json");
+    images_.emplace_back(image_path, image_info_path);
   }
   BEAM_INFO("Loaded {} images", images_.size());
 }
@@ -207,7 +210,7 @@ void CameraToMapCalibrator::DisplayInstructions() {
 
 void CameraToMapCalibrator::DrawImageFeatures() {
   if (num_image_features_shown_ == _pixels_selected.size()) { return; }
-  cv::Mat marked_image = images_.at(image_iter_).GetBGRImage().clone();
+  cv::Mat marked_image = images_.at(image_iter_).GetImage().clone();
   for (const auto& m : _pixels_selected) {
     cv::Point p(m[0], m[1]);
     BEAM_INFO("drawing marker: [{}, {}]", m[0], m[1]);
@@ -261,7 +264,7 @@ void CameraToMapCalibrator::LoadImage() {
 
   // load image
   BEAM_INFO("Loading image: {}", image_iter_);
-  const beam_containers::ImageBridge& image_container = images_.at(image_iter_);
+  const auto& image_container = images_.at(image_iter_);
   const ros::Time image_time = image_container.GetRosTime();
 
   // load pose
@@ -330,7 +333,7 @@ void CameraToMapCalibrator::LoadImage() {
 
   // display image
   cv::namedWindow(img_window_name_);
-  cv::imshow(img_window_name_, images_.at(image_iter_).GetBGRImage());
+  cv::imshow(img_window_name_, images_.at(image_iter_).GetImage());
   cv::setMouseCallback(img_window_name_, ImageMouseHandler, 0);
   cv::startWindowThread();
 }
@@ -481,7 +484,7 @@ void CameraToMapCalibrator::ViewResults() {
 
     std::cout << "Displaying image " << i << "\n";
     std::cout << "Press any key to continue\n";
-    cv::Mat image = images_.at(i).GetBGRImage().clone();
+    cv::Mat image = images_.at(i).GetImage().clone();
 
     const auto& m = measurements_.at(measurement_id);
     Eigen::Matrix4d T_Camera_World_Init =
