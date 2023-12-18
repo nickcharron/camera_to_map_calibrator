@@ -90,3 +90,16 @@ In other words, you want green and blue to overlap
 
 
 ![Example Annotation](imgs/example_results.png)
+
+## Example Tutorial
+
+This shows how to run the tool on an example dataset
+
+First, download the data from [this link](https://drive.google.com/drive/folders/16HAdIEgmTeuaqhxy-c5pXVOWtOvlr_at?usp=sharing) and upzip to ~/Downloads/camera_to_map_calibrator_data
+
+Make sure you've built the repo using the install instructions above, then run using:
+
+```
+cd ~/cam2mapcalib_catkin_ws/
+./build/camera_to_map_calibrator/camera_to_map_calibrator_main -extrinsics ~/Downloads/camera_to_map_calibrator_data/extrinsics.json -images_list ~/Downloads/camera_to_map_calibrator_data/F1_link_images/selected_images.json -map ~/Downloads/camera_to_map_calibrator_data/map.pcd -output ~/Downloads/camera_to_map_calibrator_data/calibration_results.json -poses ~/Downloads/camera_to_map_calibrator_data/poses.json -intrinsics ~/Downloads/camera_to_map_calibrator_data/intrinsics.json
+```
