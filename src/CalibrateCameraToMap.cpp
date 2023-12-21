@@ -32,6 +32,10 @@ DEFINE_string(extrinsics, "",
               "beam_robotics/calibration for file formats");
 DEFINE_validator(extrinsics, &beam::gflags::ValidateJsonFileMustExist);
 
+DEFINE_string(map_sensor_frame, "",
+              "Frame ID of the sensor frame used to generate the map");
+DEFINE_validator(map_sensor_frame, &beam::gflags::ValidateCannotBeEmpty);
+
 DEFINE_string(intrinsics, "",
               "Full path to intrinsics json (Required). See "
               "beam_robotics/calibration for file formats");
@@ -60,6 +64,7 @@ DEFINE_string(
 // ~/data/2021_10_07_09_38_36_ParkStBridge/results/map_builder/final_poses.json
 // -intrinsics
 // ~/catkin_ws/src/beam_robotics/calibration/results/inspector_gadget2/current/intrinsics/F1.json
+// -map_sensor_frame lidar_v_link
 
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -70,6 +75,8 @@ int main(int argc, char* argv[]) {
                                        .images_filename = FLAGS_images_filename,
                                        .extrinsics = FLAGS_extrinsics,
                                        .intrinsics = FLAGS_intrinsics,
+                                       .map_sensor_frame =
+                                           FLAGS_map_sensor_frame,
                                        .output = FLAGS_output};
   CameraToMapCalibrator calibrator(inputs);
   if (FLAGS_measurements.empty()) {

@@ -417,16 +417,31 @@ void CameraToMapCalibrator::Solve() {
 
 void CameraToMapCalibrator::OutputResults() {
   BEAM_INFO("Outputting results");
-  nlohmann::json J;
 
+  const std::string cam_frame = camera_model_->GetFrameID();
+  Eigen::Matrix4d T_Cam_MapSensor_Orig =
+      extrinsics_.GetTransformEigen(cam_frame, inputs_.map_sensor_frame)
+          .matrix();
+  Eigen::Matrix4d T_Baselink_MapSensor =
+      extrinsics_
+          .GetTransformEigen(baselink_frame_id_, inputs_.map_sensor_frame)
+          .matrix();
+  Eigen::Matrix4d T_Cam_MapSensor_Opt =
+      beam::InvertTransform(T_Baselink_Camera_final_) * T_Baselink_MapSensor;
   Eigen::Matrix4d T_diff =
-      T_Baselink_Camera_final_ * beam::InvertTransform(T_Baselink_Camera_);
+      T_Cam_MapSensor_Opt * beam::InvertTransform(T_Cam_MapSensor_Orig);
 
-  J["from_frame"] = camera_model_->GetFrameID();
-  J["to_frame"] = baselink_frame_id_;
-  J["original"] = GetTransformJson(T_Baselink_Camera_);
-  J["optimized"] = GetTransformJson(T_Baselink_Camera_final_);
-  J["difference"] = GetTransformJson(T_diff);
+  nlohmann::json J;
+  J["camera_frame"] = camera_model_->GetFrameID();
+  J["baselink_frame"] = baselink_frame_id_;
+  J["map_sensor_frame"] = inputs_.map_sensor_frame;
+  nlohmann::json J_T_CamFrame_MapSensorFrame;
+  J_T_CamFrame_MapSensorFrame["original"] =
+      GetTransformJson(T_Cam_MapSensor_Orig);
+  J_T_CamFrame_MapSensorFrame["optimized"] =
+      GetTransformJson(T_Cam_MapSensor_Opt);
+  J_T_CamFrame_MapSensorFrame["difference"] = GetTransformJson(T_diff);
+  J["T_CameraFrame_MapSensorFrame"] = J_T_CamFrame_MapSensorFrame;
 
   std::vector<nlohmann::json> J_measurements;
   for (const auto& m : measurements_) { J_measurements.push_back(m.ToJson()); }
@@ -450,7 +465,8 @@ nlohmann::json
   J["T"] = beam::EigenTransformToVector(T);
   J["txyz_m"] = std::vector<double>{t[0], t[1], t[2]};
   J["qwxyz"] = std::vector<double>{q.w(), q.x(), q.y(), q.z()};
-  J["RPY_deg"] = std::vector<double>{rpy[0], rpy[1], rpy[2]};
+  J["RPY_deg"] = std::vector<double>{
+      beam::Rad2Deg(rpy[0]), beam::Rad2Deg(rpy[1]), beam::Rad2Deg(rpy[2])};
   return J;
 }
 
