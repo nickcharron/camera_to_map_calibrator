@@ -69,8 +69,6 @@ private:
 
   void OutputResults();
 
-  nlohmann::json GetTransformJson(const Eigen::Matrix4d& T) const;
-
   void ViewResults();
 
   Inputs inputs_;

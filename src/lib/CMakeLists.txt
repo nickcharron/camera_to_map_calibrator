@@ -12,6 +12,7 @@ target_link_libraries(${PROJECT_NAME}
   beam::utils
   beam::mapping
   beam::optimization
+  beam::filtering
   PCL::PCL
   OpenCV::OpenCV
   nlohmann_json::nlohmann_json

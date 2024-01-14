@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Eigen3 REQUIRED)
 find_package(PCL 1.11.1 REQUIRED)
-find_package(beam REQUIRED calibration colorize mapping containers utils)
+find_package(beam REQUIRED calibration colorize mapping utils optimization filtering)
 find_package(nlohmann_json 3.2.0 REQUIRED)
 find_package(OpenCV 4.5.2 REQUIRED COMPONENTS)
 

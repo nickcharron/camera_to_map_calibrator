@@ -11,6 +11,24 @@
 #include <beam_utils/se3.h>
 
 std::vector<Eigen::Vector2d> _pixels_selected;
+std::vector<std::string> _active_map_markers;
+
+namespace {
+nlohmann::json GetTransformJson(const Eigen::Matrix4d& T) {
+  Eigen::Matrix3d R = T.block(0, 0, 3, 3);
+  Eigen::Vector3d t = T.block(0, 3, 3, 1);
+  Eigen::Vector3d rpy = R.eulerAngles(0, 1, 2);
+  Eigen::Quaterniond q(R);
+
+  nlohmann::json J;
+  J["T"] = beam::EigenTransformToVector(T);
+  J["txyz_m"] = std::vector<double>{t[0], t[1], t[2]};
+  J["qwxyz"] = std::vector<double>{q.w(), q.x(), q.y(), q.z()};
+  J["RPY_deg"] = std::vector<double>{
+      beam::Rad2Deg(rpy[0]), beam::Rad2Deg(rpy[1]), beam::Rad2Deg(rpy[2])};
+  return J;
+}
+} // namespace
 
 static void ImageMouseHandler(int event, int x, int y, int flags, void* img) {
   if (event == cv::EVENT_RBUTTONDOWN) {
@@ -164,6 +182,8 @@ void CameraToMapCalibrator::GetMeasurements() {
       AddLastImageMeasurements();
       LoadImage();
       DisplayInstructions();
+      for (const auto& id : _active_map_markers) { viewer_->removeShape(id); }
+      _active_map_markers.clear();
     } else {
       DrawImageFeatures();
     }
@@ -238,6 +258,7 @@ void CameraToMapCalibrator::PointPickingEventOccurred(
   pcl::PointXYZ p(x, y, z);
   std::string id =
       std::to_string(image_iter_) + "." + std::to_string(m.map_features.size());
+  _active_map_markers.push_back(id);
   viewer_->addSphere(p, marker_radius_, current_rgb_[0], current_rgb_[1],
                      current_rgb_[2], id);
 }
@@ -452,22 +473,6 @@ void CameraToMapCalibrator::OutputResults() {
   filejson << std::setw(4) << J << std::endl;
 
   BEAM_INFO("Done outputting results");
-}
-
-nlohmann::json
-    CameraToMapCalibrator::GetTransformJson(const Eigen::Matrix4d& T) const {
-  Eigen::Matrix3d R = T.block(0, 0, 3, 3);
-  Eigen::Vector3d t = T.block(0, 3, 3, 1);
-  Eigen::Vector3d rpy = R.eulerAngles(0, 1, 2);
-  Eigen::Quaterniond q(R);
-
-  nlohmann::json J;
-  J["T"] = beam::EigenTransformToVector(T);
-  J["txyz_m"] = std::vector<double>{t[0], t[1], t[2]};
-  J["qwxyz"] = std::vector<double>{q.w(), q.x(), q.y(), q.z()};
-  J["RPY_deg"] = std::vector<double>{
-      beam::Rad2Deg(rpy[0]), beam::Rad2Deg(rpy[1]), beam::Rad2Deg(rpy[2])};
-  return J;
 }
 
 void CameraToMapCalibrator::LoadMeasurements(const std::string& filepath) {

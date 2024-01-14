@@ -2,7 +2,7 @@
 <package format="2">
     <name>camera_to_map_calibrator</name>
     <version>1.0.0</version>
-    <description>Package for performing robot inspections</description>
+    <description>Package for performing lidar to camera calibration given a map and trajectory</description>
     <author email="nicholas.c.charron@gmail.com">Nick Charron</author>
     <maintainer email="nicholas.c.charron@gmail.com">Nick Charron</maintainer>
 
