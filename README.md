@@ -45,7 +45,7 @@ We recommend using catkin to build this tool and libbeam.
 ```
 mkdir -p ~/cam2mapcalib_catkin_ws/src
 cd ~/cam2mapcalib_catkin_ws
-catkin build
+catkin build -j2
 ```
 
 Clone libbeam and this repo:

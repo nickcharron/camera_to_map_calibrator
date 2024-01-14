@@ -12,7 +12,7 @@ DEFINE_string(
     poses, "",
     "Full path poses file (Required). See pose file types in "
     "libbeam/beam_mapping/poses.h. Or extract poses using 3d_map_builder");
-DEFINE_validator(poses, &beam::gflags::ValidateFileMustExist);
+DEFINE_validator(poses, &beam::gflags::ValidateJsonFileMustExist);
 
 DEFINE_string(
     images_list, "",
@@ -32,6 +32,10 @@ DEFINE_string(extrinsics, "",
               "beam_robotics/calibration for file formats");
 DEFINE_validator(extrinsics, &beam::gflags::ValidateJsonFileMustExist);
 
+DEFINE_string(map_sensor_frame, "",
+              "Frame ID of the sensor frame used to generate the map");
+DEFINE_validator(map_sensor_frame, &beam::gflags::ValidateCannotBeEmpty);
+
 DEFINE_string(intrinsics, "",
               "Full path to intrinsics json (Required). See "
               "beam_robotics/calibration for file formats");
@@ -50,16 +54,17 @@ DEFINE_string(
 
 // EXAMPLE COMMAND
 // ./build/camera_to_map_calibrator/camera_to_map_calibrator_main -extrinsics
-// ~/catkin_ws/src/beam_robotics/calibration/results/inspector_gadget2/current/extrinsics/extrinsics.json
+// ~/beam_robotics/calibration/results/inspector_gadget2/current/extrinsics/extrinsics.json
 // -images_list
-// ~/data/2021_10_07_09_38_36_ParkStBridge/results/image_extractor/F1_link/selected_images.json
-// -map ~/data/2021_10_07_09_38_36_ParkStBridge/results/map_builder/map.pcd
+// ~/d/results/image_extractor/F1_link/selected_images.json
+// -map ~/d/results/map_builder/map.pcd
 // -output
-// ~/data/2021_10_07_09_38_36_ParkStBridge/results/calibration_results.json
+// ~/d/results/calibration_results.json
 // -poses
-// ~/data/2021_10_07_09_38_36_ParkStBridge/results/map_builder/final_poses.json
+// ~/d/results/map_builder/final_poses.json
 // -intrinsics
-// ~/catkin_ws/src/beam_robotics/calibration/results/inspector_gadget2/current/intrinsics/F1.json
+// ~/beam_robotics/calibration/results/inspector_gadget2/current/intrinsics/F1.json
+// -map_sensor_frame lidar_v_link
 
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -70,6 +75,8 @@ int main(int argc, char* argv[]) {
                                        .images_filename = FLAGS_images_filename,
                                        .extrinsics = FLAGS_extrinsics,
                                        .intrinsics = FLAGS_intrinsics,
+                                       .map_sensor_frame =
+                                           FLAGS_map_sensor_frame,
                                        .output = FLAGS_output};
   CameraToMapCalibrator calibrator(inputs);
   if (FLAGS_measurements.empty()) {

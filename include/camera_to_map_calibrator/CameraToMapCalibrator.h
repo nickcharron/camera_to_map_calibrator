@@ -21,6 +21,7 @@ public:
     std::string images_filename;
     std::string extrinsics;
     std::string intrinsics;
+    std::string map_sensor_frame;
     std::string output;
   };
 
@@ -67,8 +68,6 @@ private:
   void DisplayInstructions();
 
   void OutputResults();
-
-  nlohmann::json GetTransformJson(const Eigen::Matrix4d& T) const;
 
   void ViewResults();
 
