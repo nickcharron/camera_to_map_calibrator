@@ -13,7 +13,8 @@ public:
    * time_stamp which is in nsec
    */
   explicit ImageContainer(const std::string& image_path,
-                          const std::string& info_path) {
+                          const std::string& info_path,
+                          double downsample_factor = 1) {
     nlohmann::json J;
     BEAM_INFO("Reading image info from json: {}", info_path);
     if (!beam::ReadJson(info_path, J)) {
@@ -25,7 +26,14 @@ public:
     time_stamp_ns_.fromNSec(time_stamp_ns_int);
 
     BEAM_INFO("Reading image file: {}", image_path);
-    image_ = cv::imread(image_path);
+    if (downsample_factor > 1) {
+      auto image = cv::imread(image_path);
+      auto w = image.cols / downsample_factor;
+      auto h = image.rows / downsample_factor;
+      cv::resize(image, image_, cv::Size(w, h));
+    } else {
+      image_ = cv::imread(image_path);
+    }
   }
 
   ~ImageContainer() = default;

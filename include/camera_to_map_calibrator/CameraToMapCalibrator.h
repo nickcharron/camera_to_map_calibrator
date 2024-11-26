@@ -23,6 +23,7 @@ public:
     std::string intrinsics;
     std::string map_sensor_frame;
     std::string output;
+    double image_downsample_factor;
   };
 
   struct ImageMeasurements {

@@ -46,6 +46,9 @@ DEFINE_string(output, "",
               "/home/user/new_extrinsics.json");
 DEFINE_validator(output, &beam::gflags::ValidateMustBeJson);
 
+DEFINE_double(image_downsample_factor, 2,
+              "How much to downsample images before display. Default: 2");
+
 DEFINE_string(
     measurements, "",
     "[optional] if a measurements path is provided, we will use "
@@ -69,15 +72,16 @@ DEFINE_string(
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-  CameraToMapCalibrator::Inputs inputs{.map = FLAGS_map,
-                                       .poses = FLAGS_poses,
-                                       .images_list = FLAGS_images_list,
-                                       .images_filename = FLAGS_images_filename,
-                                       .extrinsics = FLAGS_extrinsics,
-                                       .intrinsics = FLAGS_intrinsics,
-                                       .map_sensor_frame =
-                                           FLAGS_map_sensor_frame,
-                                       .output = FLAGS_output};
+  CameraToMapCalibrator::Inputs inputs{
+      .map = FLAGS_map,
+      .poses = FLAGS_poses,
+      .images_list = FLAGS_images_list,
+      .images_filename = FLAGS_images_filename,
+      .extrinsics = FLAGS_extrinsics,
+      .intrinsics = FLAGS_intrinsics,
+      .map_sensor_frame = FLAGS_map_sensor_frame,
+      .output = FLAGS_output,
+      .image_downsample_factor = FLAGS_image_downsample_factor};
   CameraToMapCalibrator calibrator(inputs);
   if (FLAGS_measurements.empty()) {
     calibrator.GetMeasurements();

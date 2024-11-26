@@ -12,6 +12,7 @@
 
 std::vector<Eigen::Vector2d> _pixels_selected;
 std::vector<std::string> _active_map_markers;
+double _image_downsample_factor;
 
 namespace {
 nlohmann::json GetTransformJson(const Eigen::Matrix4d& T) {
@@ -32,14 +33,17 @@ nlohmann::json GetTransformJson(const Eigen::Matrix4d& T) {
 
 static void ImageMouseHandler(int event, int x, int y, int flags, void* img) {
   if (event == cv::EVENT_RBUTTONDOWN) {
-    _pixels_selected.emplace_back(x, y);
-    BEAM_INFO("Adding pixel feature: [{}, {}]", x, y);
+    int xx = static_cast<int>(x * _image_downsample_factor);
+    int yy = static_cast<int>(y * _image_downsample_factor);
+    _pixels_selected.emplace_back(xx, yy);
+    BEAM_INFO("Adding pixel feature: [{}, {}]", xx, yy);
     return;
   }
 }
 
 CameraToMapCalibrator::CameraToMapCalibrator(const Inputs& inputs)
     : inputs_(inputs) {
+  _image_downsample_factor = inputs.image_downsample_factor;
   camera_model_ = beam_calibration::CameraModel::Create(inputs_.intrinsics);
   FillTfTrees();
   T_Baselink_Camera_ =
@@ -120,7 +124,7 @@ void CameraToMapCalibrator::LoadImages() {
         image_root / std::filesystem::path(inputs_.images_filename);
     std::string image_info_path =
         image_root / std::filesystem::path("ImageInfo.json");
-    images_.emplace_back(image_path, image_info_path);
+    images_.emplace_back(image_path, image_info_path, _image_downsample_factor);
   }
   BEAM_INFO("Loaded {} images", images_.size());
 }
@@ -225,14 +229,17 @@ void CameraToMapCalibrator::DisplayInstructions() {
             << "Press 'n' to go to next image\n"
             << "Press 'i' to remove last image feature\n"
             << "Press 'm' to remove last map feature\n"
-            << "SHIFT Click to select a point\n";
+            << "Right Click to select a point on the image\n"
+            << "SHIFT Click to select a point on the map\n";
 }
 
 void CameraToMapCalibrator::DrawImageFeatures() {
   if (num_image_features_shown_ == _pixels_selected.size()) { return; }
   cv::Mat marked_image = images_.at(image_iter_).GetImage().clone();
   for (const auto& m : _pixels_selected) {
-    cv::Point p(m[0], m[1]);
+    int x = static_cast<int>(m[0] / _image_downsample_factor);
+    int y = static_cast<int>(m[1] / _image_downsample_factor);
+    cv::Point p(x, y);
     BEAM_INFO("drawing marker: [{}, {}]", m[0], m[1]);
     cv::drawMarker(marked_image, p,
                    cv::Scalar(current_rgb_[2] * 255, current_rgb_[1] * 255,
